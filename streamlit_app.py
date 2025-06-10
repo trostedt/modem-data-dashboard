@@ -32,7 +32,7 @@ selected_bearer = st.sidebar.multiselect("Bearer", options=bearers, default=bear
 # Filter data
 filtered_data = data[(data["Operator"].isin(selected_operator)) & (data["Bearer"].isin(selected_bearer))]
 
-# Main charts
+# Main charts for numeric metrics
 metrics = [
     "Signal Level (1-5)",
     "Link Quality (%)",
@@ -42,28 +42,61 @@ metrics = [
 
 for metric in metrics:
     fig = px.line(
-        filtered_data, x="Time", y=metric,
+        filtered_data,
+        x="Time",
+        y=metric,
         hover_data=["Operator", "Bearer", "Modem Connected"],
         title=metric
     )
-    fig.update_layout(height=250, margin=dict(l=10, r=10, t=30, b=10))
+    fig.update_layout(
+        height=250,
+        margin=dict(l=10, r=10, t=30, b=10)
+    )
     st.plotly_chart(fig, use_container_width=True)
 
-# Modem Connected as step line
+# Modem Connected status as a step plot
 st.subheader("Modem Connection Status")
-fig_conn = px.step(
-    filtered_data, x="Time", y="Modem Connected",
-    title="Modem Connected (0 = No, 1 = Yes)"
+fig_conn = px.line(
+    filtered_data,
+    x="Time",
+    y="Modem Connected",
+    title="Modem Connected (0 = No, 1 = Yes)",
+    line_shape='hv'
 )
-fig_conn.update_layout(height=200, yaxis=dict(tickvals=[0, 1], ticktext=["Disconnected", "Connected"]))
+fig_conn.update_layout(
+    height=200,
+    margin=dict(l=10, r=10, t=30, b=10),
+    yaxis=dict(
+        tickvals=[0, 1],
+        ticktext=["Disconnected", "Connected"]
+    )
+)
 st.plotly_chart(fig_conn, use_container_width=True)
 
 # Operator and Bearer timelines
 st.subheader("Operator and Bearer Changes")
 fig_cat = go.Figure()
-fig_cat.add_trace(go.Scatter(x=filtered_data["Time"], y=filtered_data["Operator"], mode="lines+markers", name="Operator"))
-fig_cat.add_trace(go.Scatter(x=filtered_data["Time"], y=filtered_data["Bearer"], mode="lines+markers", name="Bearer"))
-fig_cat.update_layout(height=300, yaxis_title="Category")
+fig_cat.add_trace(
+    go.Scatter(
+        x=filtered_data["Time"],
+        y=filtered_data["Operator"],
+        mode="lines+markers",
+        name="Operator"
+    )
+)
+fig_cat.add_trace(
+    go.Scatter(
+        x=filtered_data["Time"],
+        y=filtered_data["Bearer"],
+        mode="lines+markers",
+        name="Bearer"
+    )
+)
+fig_cat.update_layout(
+    height=300,
+    margin=dict(l=10, r=10, t=30, b=10),
+    yaxis_title="Category"
+)
 st.plotly_chart(fig_cat, use_container_width=True)
 
 st.markdown("---")
